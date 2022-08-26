@@ -14,7 +14,7 @@ resource "aws_route53_record" "mx_records" {
       }
     ]
   ])
-  zone_id = aws_route53_zone.this.zone_id
+  zone_id = aws_route53_zone.this[0].zone_id
   name    = each.value.name
   type    = each.value.type
   ttl     = each.value.ttl
