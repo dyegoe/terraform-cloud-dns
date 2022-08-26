@@ -34,5 +34,5 @@ variable "spf_providers" {
 
 variable "records" {
   default     = []
-  description = "A list of objects with the following keys: name, type, value"
+  description = "A list of objects with the following keys: name, type, ttl, priority, value"
 }
