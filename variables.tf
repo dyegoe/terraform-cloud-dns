@@ -20,6 +20,12 @@ variable "a_root" {
   description = "The IP address for the root A record"
 }
 
+variable "cname_www" {
+  type        = bool
+  default     = true
+  description = "Whether to create a CNAME record for www"
+}
+
 variable "mx_providers" {
   type        = list(string)
   default     = []
