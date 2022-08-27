@@ -41,8 +41,24 @@ locals {
     ]
   ])
 
+  // A root --------------------------------------------------------------------
+  a_root = [{
+    name  = "@",
+    type  = "A",
+    ttl   = var.ttl_default,
+    value = var.a_root
+  }]
+
+  // CNAME www to root ---------------------------------------------------------
+  cname_www = var.cname_www ? [{
+    name  = "www",
+    type  = "CNAME",
+    ttl   = var.ttl_default,
+    value = "@"
+  }] : []
+
   // Records -------------------------------------------------------------------
-  records_merge = concat(var.records, local.mx_records, local.spf)
+  records_merge = concat(var.records, local.mx_records, local.spf, local.a_root)
   # { name = "@", type = "TXT", ttl = "300", priority = null, value = "value" },
   records_tmp = {
     for record in local.records_merge : record.type => {
@@ -59,6 +75,18 @@ locals {
         ttl      = record.ttl
         priority = record.priority
       }...
+    }
+  }
+  records_aws = {
+    for type, names in local.records : type => {
+      for name, records in names : name => {
+        name = name,
+        type = type,
+        ttl  = element(sort([for record in records : record.ttl]), 0),
+        value = [
+          for record in records : type == "MX" ? "${record.priority} ${record.value}" : record.value
+        ]
+      }
     }
   }
 }
