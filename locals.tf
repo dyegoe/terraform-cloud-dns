@@ -43,7 +43,7 @@ locals {
   ]
 
   // CNAME www to root ---------------------------------------------------------
-  cname_www = var.cname_www ? [
+  cname_www_root = var.cname_www_root ? [
     { name = "www", type = "CNAME", ttl = var.ttl_default, value = "@" }
   ] : []
 
@@ -61,7 +61,7 @@ locals {
   ] : []
 
   // Records -------------------------------------------------------------------
-  records_merge = concat(var.records, local.mx_records, local.spf, local.a_root)
+  records_merge = concat(var.records, local.mx_records, local.spf, local.a_root, local.cname_www_root, local.cname_mail_skymail)
   # { name = "@", type = "TXT", ttl = "300", priority = null, value = "value" },
   records_tmp = {
     for record in local.records_merge : record.type => {
