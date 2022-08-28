@@ -20,10 +20,10 @@ variable "a_root" {
   description = "The IP address for the root A record"
 }
 
-variable "cname_www" {
+variable "cname_www_root" {
   type        = bool
   default     = true
-  description = "Whether to create a CNAME record for www"
+  description = "Whether to create a CNAME record for www to root"
 }
 
 variable "cname_mail_skymail" {
