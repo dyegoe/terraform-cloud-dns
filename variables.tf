@@ -26,6 +26,12 @@ variable "cname_www" {
   description = "Whether to create a CNAME record for www"
 }
 
+variable "cname_mail_skymail" {
+  type        = bool
+  default     = false
+  description = "Whether to create CNAME records for mail related to skymail"
+}
+
 variable "mx_providers" {
   type        = list(string)
   default     = []

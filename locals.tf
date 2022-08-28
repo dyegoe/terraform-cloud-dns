@@ -32,30 +32,33 @@ locals {
   mx_records = flatten([
     for provider in var.mx_providers : [
       for record in local.mx_defaults[provider] : {
-        name     = "@"
-        type     = "MX"
-        ttl      = var.ttl_default
-        priority = record.priority
-        value    = record.value
+        name = "@", type = "MX", ttl = var.ttl_default, priority = record.priority, value = record.value
       }
     ]
   ])
 
   // A root --------------------------------------------------------------------
-  a_root = [{
-    name  = "@",
-    type  = "A",
-    ttl   = var.ttl_default,
-    value = var.a_root
-  }]
+  a_root = [
+    { name = "@", type = "A", ttl = var.ttl_default, value = var.a_root }
+  ]
 
   // CNAME www to root ---------------------------------------------------------
-  cname_www = var.cname_www ? [{
-    name  = "www",
-    type  = "CNAME",
-    ttl   = var.ttl_default,
-    value = "@"
-  }] : []
+  cname_www = var.cname_www ? [
+    { name = "www", type = "CNAME", ttl = var.ttl_default, value = "@" }
+  ] : []
+
+  // CNAME mail related to skymail ---------------------------------------------
+  cname_mail_skymail = var.cname_mail_skymail ? [
+    { name = "autodiscover", type = "CNAME", value = "autodiscover-ha.skymail.net.br" },
+    { name = "imap", type = "CNAME", value = "imap-ha.skymail.net.br" },
+    { name = "mail", type = "CNAME", value = "mail-ha.skymail.net.br" },
+    { name = "pop", type = "CNAME", value = "pop-ha.skymail.net.br" },
+    { name = "pop3", type = "CNAME", value = "pop-ha.skymail.net.br" },
+    { name = "smtp", type = "CNAME", value = "smtp-ha.skymail.net.br" },
+    { name = "owa", type = "CNAME", value = "webapp-ha.skymail.net.br" },
+    { name = "webapp", type = "CNAME", value = "webapp-ha.skymail.net.br" },
+    { name = "webmail", type = "CNAME", value = "webmail-ha.skymail.net.br" }
+  ] : []
 
   // Records -------------------------------------------------------------------
   records_merge = concat(var.records, local.mx_records, local.spf, local.a_root)
