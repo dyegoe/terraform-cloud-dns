@@ -38,7 +38,7 @@ locals {
   ])
 
   // A root --------------------------------------------------------------------
-  a_root = var.a_root ? [
+  a_root = var.a_root != "" ? [
     { name = "@", type = "A", ttl = var.ttl_default, value = var.a_root }
   ] : []
 
