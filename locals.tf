@@ -38,9 +38,9 @@ locals {
   ])
 
   // A root --------------------------------------------------------------------
-  a_root = [
+  a_root = var.a_root ? [
     { name = "@", type = "A", ttl = var.ttl_default, value = var.a_root }
-  ]
+  ] : []
 
   // CNAME www to root ---------------------------------------------------------
   cname_www_root = var.cname_www_root ? [

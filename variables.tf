@@ -17,6 +17,7 @@ variable "ttl_default" {
 
 variable "a_root" {
   type        = string
+  default     = ""
   description = "The IP address for the root A record"
 }
 
