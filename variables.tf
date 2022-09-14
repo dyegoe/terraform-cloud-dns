@@ -15,6 +15,12 @@ variable "ttl_default" {
   description = "The TTL default for all records"
 }
 
+variable "dnssec" {
+  type        = bool
+  default     = false
+  description = "Enable DNSSEC for the zone"
+}
+
 variable "a_root" {
   type        = string
   default     = ""
