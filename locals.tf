@@ -39,7 +39,7 @@ locals {
 
   // A root --------------------------------------------------------------------
   a_root = var.a_root != "" ? [
-    { name = "@", type = "A", ttl = var.ttl_default, value = var.a_root }
+    { name = "@", type = "A", ttl = var.ttl_default, value = var.a_root, alias = var.a_root_type == "ALIAS" ? true : null, zone_id = var.a_root_type == "ALIAS" ? var.a_root_zone_id : null }
   ] : []
 
   // CNAME www to root ---------------------------------------------------------
@@ -69,6 +69,8 @@ locals {
       ttl      = try(record.ttl, var.ttl_default)
       priority = try(record.priority, null)
       value    = record.value == "@" ? var.name : record.value
+      alias    = try(record.alias, null)
+      zone_id  = try(record.zone_id, null)
     }...
   }
   records = {
@@ -77,15 +79,19 @@ locals {
         value    = record.value
         ttl      = record.ttl
         priority = record.priority
+        alias    = record.alias
+        zone_id  = record.zone_id
       }...
     }
   }
   records_aws = {
     for type, names in local.records : type => {
       for name, records in names : name => {
-        name = name,
-        type = type,
-        ttl  = element(sort([for record in records : record.ttl]), 0),
+        name    = name,
+        type    = type,
+        ttl     = element(sort([for record in records : record.ttl]), 0),
+        alias   = try(records[0].alias, null),
+        zone_id = try(records[0].zone_id, null),
         value = [
           for record in records : type == "MX" ? "${record.priority} ${record.value}" : record.value
         ]

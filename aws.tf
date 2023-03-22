@@ -86,8 +86,16 @@ resource "aws_route53_record" "a_records" {
   zone_id  = aws_route53_zone.this[0].zone_id
   name     = each.value.name
   type     = each.value.type
-  ttl      = each.value.ttl
-  records  = each.value.value
+  ttl      = each.value.alias ? null : each.value.ttl
+  records  = each.value.alias ? null : each.value.value
+  dynamic "alias" {
+    for_each = each.value.alias ? [1] : []
+    content {
+      name                   = each.value.value[0]
+      zone_id                = each.value.zone_id
+      evaluate_target_health = false
+    }
+  }
 }
 
 resource "aws_route53_record" "aaaa_records" {

@@ -21,10 +21,26 @@ variable "dnssec" {
   description = "Enable DNSSEC for the zone"
 }
 
+variable "a_root_type" {
+  type        = string
+  default     = "A"
+  description = "The type of the root A record. Values: A, ALIAS"
+  validation {
+    condition     = contains(["A", "ALIAS"], var.a_root_type)
+    error_message = "The value of a_root_type must be A or ALIAS."
+  }
+}
+
 variable "a_root" {
   type        = string
   default     = ""
-  description = "The IP address for the root A record"
+  description = "The IP address for the root A record (if a_root_type is A) or the alias target (if a_root_type is ALIAS)"
+}
+
+variable "a_root_zone_id" {
+  type        = string
+  default     = ""
+  description = "The zone ID for the root A record (if a_root_type is ALIAS)"
 }
 
 variable "cname_www_root" {
