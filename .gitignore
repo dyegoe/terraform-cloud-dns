@@ -34,3 +34,5 @@ override.tf.json
 # Ignore the following files since they are for development purposes only
 outputs_dev.tf
 terraform_dev.auto.tfvars
+
+backup/*
