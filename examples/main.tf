@@ -3,11 +3,11 @@ locals {
   name = "example.io"
 
   records = {
-    api  = { name = "api", type = "A", value = "10.0.0.2", ttl = 1 }                 # true
-    mx1  = { name = "mx1", type = "MX", value = "aspmx.l.google.com", priority = 1 } # true
-    mx2  = { name = "mx2", type = "A", value = "aspmx.l.google.com", priority = 1 }  # false
-    mx3  = { name = "mx3", type = "MX", value = "aspmx.l.google.com" }               # false
-    root = { name = "root", type = "A", value = "10.0.0.1" }                         # true
+    root = { name = local.name, type = "A", value = "10.0.0.1" }
+    api  = { name = "api", type = "A", value = "10.0.0.2", ttl = 1000 }
+    new  = { name = "new.example.io", type = "CNAME", value = "api.example.io" }
+    sub  = { name = "sub.domain", type = "CNAME", value = "new.example.io" }
+    sub2 = { name = "sub2.domain.example.io", type = "CNAME", value = "new.example.io" }
   }
 }
 
@@ -36,34 +36,20 @@ module "skymail_records_root" {
   ttl  = local.ttl
 }
 
-# module "cloud_dns" {
-#   source = "../"
+module "all_records" {
+  source = "../modules/records"
 
-#   name = local.name
-#   ttl  = local.ttl
+  name = local.name
+  ttl  = local.ttl
 
-#   records = {
-#     root = { name = "@", type = "A", value = "10.0.0.1" }
-#     api  = { name = "api", type = "A", value = "10.0.0.2", ttl = 1 }
-#     mx1  = { name = "@", type = "MX", value = "aspmx.l.google.com", priority = 1 }
-#   }
-# }
-
-output "records" {
-  value = merge(
+  records = merge(
     module.mx_records_root.records,
     module.spf_records_root.records,
     module.skymail_records_root.records,
-    {
-      root = { name = "@", type = "A", value = "10.0.0.1" }
-      api  = { name = "api", type = "A", value = "10.0.0.2", ttl = 1 }
-      mx1  = { name = "@", type = "MX", value = "aspmx.l.google.com", priority = 1 }
-    }
+    local.records,
   )
 }
 
-output "test" {
-  value = {
-    for record in local.records : record.name => record.type == "MX" if try(record.priority, null) != null
-  }
+output "records" {
+  value = module.all_records.records
 }
