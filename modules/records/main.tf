@@ -1,16 +1,16 @@
 locals {
-  name_regex = replace(var.name, ".", "\\.")
-  records = {
-    for k, v in var.records : k => {
-      name     = can(regex("^.{0,}(\\.|)${local.name_regex}$", v.name)) ? v.name : "${v.name}.${var.name}"
-      type     = v.type
-      value    = v.value
-      ttl      = v.ttl != null ? v.ttl : var.ttl
-      priority = try(v.priority, null)
-      proxied  = try(v.proxied, null)
-      alias    = try(v.alias, null)
+  name_regex = "^.{0,}(\\.|)${replace(var.name, ".", "\\.")}$"
+  records = [
+    for r in var.records : {
+      name     = r.name == "@" ? var.name : can(regex(local.name_regex, r.name)) ? r.name : "${r.name}.${var.name}"
+      type     = r.type
+      value    = r.value == "@" ? var.name : r.value
+      ttl      = r.ttl != null ? r.ttl : var.ttl
+      priority = try(r.priority, null)
+      proxied  = try(r.proxied, null)
+      alias    = try(r.alias, null)
     }
-  }
+  ]
 }
 
 output "records" {

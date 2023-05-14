@@ -19,8 +19,14 @@ variable "ttl" {
   }
 }
 
+variable "create_zone" {
+  type        = bool
+  default     = true
+  description = "Whether to create the zone or not. If false, the zone must already exist."
+}
+
 variable "records" {
-  type = map(object({
+  type = list(object({
     name     = string
     type     = string
     value    = optional(string)
@@ -33,11 +39,11 @@ variable "records" {
       evaluate_target_health = optional(bool)
     }))
   }))
-  description = "Map of objects that describe the zone record to add. Attention: if the record has no 'priority', let it but without value."
+  description = "List of objects that describe the zone record to add."
 
   // ... Validate name
   validation {
-    condition     = alltrue([for record in var.records : record.name == "" ? false : true])
+    condition     = alltrue([for record in var.records : record.name == "" || record.name == null ? false : true])
     error_message = "Invalid value for name. It cannot be empty."
   }
 

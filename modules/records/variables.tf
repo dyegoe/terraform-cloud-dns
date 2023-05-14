@@ -20,7 +20,7 @@ variable "ttl" {
 }
 
 variable "records" {
-  type = map(object({
+  type = list(object({
     name     = string
     type     = string
     value    = optional(string)
@@ -33,11 +33,11 @@ variable "records" {
       evaluate_target_health = optional(bool)
     }))
   }))
-  description = "Map of objects that describe the zone record to add. Attention: if the record has no 'priority', let it but without value."
+  description = "List of objects that describe the zone record to add."
 
   // ... Validate name
   validation {
-    condition     = alltrue([for record in var.records : record.name == "" ? false : true])
+    condition     = alltrue([for record in var.records : record.name == "" || record.name == null ? false : true])
     error_message = "Invalid value for name. It cannot be empty."
   }
 
@@ -50,11 +50,6 @@ variable "records" {
   validation {
     condition     = alltrue([for record in var.records : record.type == "MX" ? can(regex("^[1-9][0-9]{0,2}$", record.priority)) : true])
     error_message = "Invalid value for priority when type MX. Must be a number between 0 and 999."
-  }
-
-  validation {
-    condition     = alltrue([for record in var.records : record.type == "CNAME" ? can(regex("^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$", record.value)) : true])
-    error_message = "Invalid value for value when type CNAME. Must be a valid FQDN."
   }
 
   // ... Validate value
