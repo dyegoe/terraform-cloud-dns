@@ -1,11 +1,16 @@
 locals {
-  // ... Record fields
+  // --- Record fields ---
   // name     = string
   // type     = string
-  // value    = string
+  // value    = optional(string)
   // ttl      = optional(number)
   // priority = optional(string)
   // proxied  = optional(bool)
+  // alias = optional(object({
+  //   name                   = string
+  //   zone_id                = string
+  //   evaluate_target_health = optional(bool)
+  // }))
   mx_providers = {
     google = {
       mx_google_1 = { name = var.name, type = "MX", value = "aspmx.l.google.com", ttl = var.ttl, priority = "1" },

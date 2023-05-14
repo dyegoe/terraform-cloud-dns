@@ -1,11 +1,16 @@
 locals {
-  // ... Record fields
+  // --- Record fields ---
   // name     = string
   // type     = string
-  // value    = string
+  // value    = optional(string)
   // ttl      = optional(number)
   // priority = optional(string)
   // proxied  = optional(bool)
+  // alias = optional(object({
+  //   name                   = string
+  //   zone_id                = string
+  //   evaluate_target_health = optional(bool)
+  // }))
   records = {
     skymail_autodiscover = { name = "autodiscover.${var.name}", type = "CNAME", value = "autodiscover-ha.skymail.net.br" },
     skymail_imap         = { name = "imap.${var.name}", type = "CNAME", value = "imap-ha.skymail.net.br" },

@@ -8,13 +8,18 @@ locals {
   spf_selected_providers = [
     for spf_provider in var.spf_providers_list : local.spf_providers[spf_provider]
   ]
-  // ... Record fields
+  // --- Record fields ---
   // name     = string
   // type     = string
-  // value    = string
+  // value    = optional(string)
   // ttl      = optional(number)
   // priority = optional(string)
   // proxied  = optional(bool)
+  // alias = optional(object({
+  //   name                   = string
+  //   zone_id                = string
+  //   evaluate_target_health = optional(bool)
+  // }))
   spf_records = {
     spf1 = {
       name  = var.name,

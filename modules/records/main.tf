@@ -8,6 +8,7 @@ locals {
       ttl      = v.ttl != null ? v.ttl : var.ttl
       priority = try(v.priority, null)
       proxied  = try(v.proxied, null)
+      alias    = try(v.alias, null)
     }
   }
 }
