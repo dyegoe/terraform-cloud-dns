@@ -39,7 +39,7 @@ locals {
 
   // A root --------------------------------------------------------------------
   a_root = var.a_root != "" ? [
-    { name = "@", type = "A", ttl = var.ttl_default, value = var.a_root, alias = var.a_root_type == "ALIAS" ? true : null, zone_id = var.a_root_type == "ALIAS" ? var.a_root_zone_id : null }
+    { name = "@", type = "A", ttl = var.ttl_default, value = var.a_root, alias = var.a_root_type == "ALIAS" ? true : false, zone_id = var.a_root_type == "ALIAS" ? var.a_root_zone_id : null }
   ] : []
 
   // CNAME www to root ---------------------------------------------------------
