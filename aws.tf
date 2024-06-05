@@ -62,7 +62,7 @@ resource "aws_kms_key" "this" {
         Action = "kms:*"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.this[0].account_id}:${data.aws_caller_identity.this[0].user_id}"
+          AWS = "${data.aws_caller_identity.this[0].arn}"
         }
         Resource = "*"
         Sid      = "Enable IAM User Permissions"
