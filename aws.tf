@@ -49,13 +49,13 @@ data "aws_iam_policy_document" "kms" {
   }
 
   dynamic "statement" {
-    for_each = length(var.dnssec_aws_additional_kms_allowed_users_arn) > 0 ? [1] : []
+    for_each = length(var.aws_kms_users_arn) > 0 ? [1] : []
     content {
       actions = ["kms:*"]
       effect  = "Allow"
       principals {
         type        = "AWS"
-        identifiers = var.dnssec_aws_additional_kms_allowed_users_arn
+        identifiers = var.aws_kms_users_arn
       }
       resources = ["*"]
     }

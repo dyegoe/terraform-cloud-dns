@@ -21,7 +21,7 @@ variable "dnssec" {
   description = "Enable DNSSEC for the zone"
 }
 
-variable "dnssec_aws_additional_kms_allowed_users_arn" {
+variable "aws_kms_users_arn" {
   type        = list(string)
   default     = []
   description = "A list of ARNs of IAM users that are allowed full manage the KMS key for DNSSEC"
