@@ -78,7 +78,7 @@ resource "aws_kms_key" "this" {
 
 resource "aws_kms_alias" "this" {
   count         = contains(var.cloud_providers, "aws") && var.dnssec ? 1 : 0
-  name          = "alias/${var.name}"
+  name          = "alias/${replace(var.name, ".", "-")}"
   target_key_id = aws_kms_key.this[0].key_id
 }
 
