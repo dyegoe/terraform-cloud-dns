@@ -2,7 +2,8 @@ data "aws_caller_identity" "this" {
   count = contains(var.cloud_providers, "aws") && var.dnssec ? 1 : 0
 }
 
-data "aws_iam_policy_document" "kms" {
+data "aws_iam_policy_document" "this" {
+  count = contains(var.cloud_providers, "aws") && var.dnssec ? 1 : 0
   statement {
     actions = ["kms:DescribeKey", "kms:GetPublicKey", "kms:Sign"]
     effect  = "Allow"
@@ -72,7 +73,13 @@ resource "aws_kms_key" "this" {
     Name   = var.name
     dnssec = "true"
   }
-  policy = data.aws_iam_policy_document.kms.json
+  policy = data.aws_iam_policy_document.this[0].json
+}
+
+resource "aws_kms_alias" "this" {
+  count         = contains(var.cloud_providers, "aws") && var.dnssec ? 1 : 0
+  name          = "dnssec/${var.name}"
+  target_key_id = aws_kms_key.this[0].key_id
 }
 
 resource "aws_route53_zone" "this" {
