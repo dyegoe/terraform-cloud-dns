@@ -2,6 +2,66 @@ data "aws_caller_identity" "this" {
   count = contains(var.cloud_providers, "aws") && var.dnssec ? 1 : 0
 }
 
+data "aws_iam_policy_document" "kms" {
+  statement {
+    actions = ["kms:DescribeKey", "kms:GetPublicKey", "kms:Sign"]
+    effect  = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["dnssec-route53.amazonaws.com"]
+    }
+    resources = ["*"]
+    condition {
+      test     = "StringEquals"
+      values   = ["${data.aws_caller_identity.this[0].account_id}"]
+      variable = "aws:SourceAccount"
+    }
+    condition {
+      test     = "ArnLike"
+      values   = ["arn:aws:route53:::hostedzone/*"]
+      variable = "aws:SourceArn"
+    }
+  }
+
+  statement {
+    actions = ["kms:CreateGrant"]
+    effect  = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["dnssec-route53.amazonaws.com"]
+    }
+    resources = ["*"]
+    condition {
+      test     = "Bool"
+      values   = ["true"]
+      variable = "kms:GrantIsForAWSResource"
+    }
+  }
+
+  statement {
+    actions = ["kms:*"]
+    effect  = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.this[0].account_id}:root"]
+    }
+    resources = ["*"]
+  }
+
+  dynamic "statement" {
+    for_each = length(var.aws_kms_users_arn) > 0 ? [1] : []
+    content {
+      actions = ["kms:*"]
+      effect  = "Allow"
+      principals {
+        type        = "AWS"
+        identifiers = var.aws_kms_users_arn
+      }
+      resources = ["*"]
+    }
+  }
+}
+
 resource "aws_kms_key" "this" {
   count                    = contains(var.cloud_providers, "aws") && var.dnssec ? 1 : 0
   description              = "DNSSEC: ${var.name}"
@@ -12,55 +72,7 @@ resource "aws_kms_key" "this" {
     Name   = var.name
     dnssec = "true"
   }
-  policy = jsonencode({
-    Statement = [
-      {
-        Action = [
-          "kms:DescribeKey",
-          "kms:GetPublicKey",
-          "kms:Sign",
-        ],
-        Effect = "Allow"
-        Principal = {
-          Service = "dnssec-route53.amazonaws.com"
-        }
-        Sid      = "Allow Route 53 DNSSEC Service",
-        Resource = "*"
-        Condition = {
-          StringEquals = {
-            "aws:SourceAccount" = "${data.aws_caller_identity.this[0].account_id}"
-          }
-          ArnLike = {
-            "aws:SourceArn" = "arn:aws:route53:::hostedzone/*"
-          }
-        }
-      },
-      {
-        Action = "kms:CreateGrant",
-        Effect = "Allow"
-        Principal = {
-          Service = "dnssec-route53.amazonaws.com"
-        }
-        Sid      = "Allow Route 53 DNSSEC Service to CreateGrant",
-        Resource = "*"
-        Condition = {
-          Bool = {
-            "kms:GrantIsForAWSResource" = "true"
-          }
-        }
-      },
-      {
-        Action = "kms:*"
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.this[0].account_id}:root"
-        }
-        Resource = "*"
-        Sid      = "Enable IAM User Permissions"
-      },
-    ]
-    Version = "2012-10-17"
-  })
+  policy = data.aws_iam_policy_document.kms.json
 }
 
 resource "aws_route53_zone" "this" {
