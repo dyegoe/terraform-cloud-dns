@@ -9,7 +9,7 @@ locals {
   spf_tmp = [
     for provider in var.spf_providers : local.spf_defaults[provider]
   ]
-  spf = [{
+  spf = length(local.spf_tmp) < 1 ? [] : [{
     name  = "@",
     type  = "TXT",
     ttl   = var.ttl_default,
